@@ -1,0 +1,99 @@
+package com.company;
+import java.util.Scanner;
+public class Main {
+    public static void main(String[] args) {
+        Scanner keyboard = new Scanner(System.in);
+        String[][] impossible = new String[9][9];
+        int[][] puzzle = new int[9][9];
+        System.out.println("Please enter the sodoku puzzle (using 0 for empty spaces) going left to right");
+        for (int y = 0; y < 9; y++) {
+            System.out.println("\nLine " + (y + 1) + ": ");
+            for (int x = 0; x < 9; x++) {
+                System.out.print("Number: ");
+                impossible[y][x] = "";
+                puzzle[y][x] = keyboard.nextInt();
+            }//this is still a WIP. right now it can only solve puzzles up to medium difficulty. going to add more strategies in the future
+        }
+        dis(puzzle);
+        System.out.println();
+        for (int t = 0; t <= 20; t++) { //im going to change this so it doesnt just repeat 20 times
+            castle(puzzle, impossible);
+            rubik(puzzle, impossible);
+            solve(puzzle, impossible);
+        }
+        dis(puzzle);
+    }static void castle(int puzzle[][], String impossible[][]) {
+        for (int y = 0; y < 9; y++) {
+            for (int x = 0; x < 9; x++) {
+                int ly = y - 1;int uy = y + 1;int lx = x - 1;int ux = x + 1;
+                if (puzzle[y][x] != 0) {
+                    while (ly != -1) {
+                        if (!impossible[ly][x].contains(String.valueOf(puzzle[y][x])))
+                            impossible[ly][x] = impossible[ly][x] + (String.valueOf(puzzle[y][x]));
+                        ly--;
+                    }
+                    while (uy != 9) {
+                        if (!impossible[uy][x].contains(String.valueOf(puzzle[y][x])))
+                            impossible[uy][x] = impossible[uy][x] + (String.valueOf(puzzle[y][x]));
+                        uy++;
+                    }
+                    while (lx != -1) {
+                        if (!impossible[y][lx].contains(String.valueOf(puzzle[y][x])))
+                            impossible[y][lx] = impossible[y][lx] + (String.valueOf(puzzle[y][x]));
+                        lx--;
+                    }
+                    while (ux != 9) {
+                        if (!impossible[y][ux].contains(String.valueOf(puzzle[y][x])))
+                            impossible[y][ux] = impossible[y][ux] + (String.valueOf(puzzle[y][x]));
+                        ux++;
+                    }
+                }
+            }
+        }
+    }static void rubik(int puzzle[][], String impossible[][]) {
+        for (int by = 0; by < 9; by += 3) {
+            for (int bx = 0; bx < 9; bx += 3) {
+                for (int y = 0; y < 3; y++) {
+                    for (int x = 0; x < 3; x++) {
+                        if (puzzle[y + by][x + bx] != 0) {
+                            for (int y2 = 0; y2 < 3; y2++) {
+                                for (int x2 = 0; x2 < 3; x2++) {
+                                    if (puzzle[by + y2][bx + x2] == 0 && !impossible[by + y2][bx + x2].contains(String.valueOf(puzzle[y + by][x + bx])))
+                                        impossible[by + y2][bx + x2] = impossible[by + y2][bx + x2] + (String.valueOf(puzzle[y + by][x + bx]));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }static void solve(int puzzle[][], String impossible[][]) {
+        for (int y = 0; y < 9; y++) {
+            for (int x = 0; x < 9; x++) {
+                if (puzzle[y][x] == 0 && impossible[y][x].length() == 8) {
+                    int ph = Integer.parseInt(impossible[y][x]);
+                    int sum = 0;
+                    while (ph > 0) {
+                        sum = sum + ph % 10;
+                        ph = ph / 10;
+                        puzzle[y][x] = 45 - sum;
+                    }
+                }
+            }
+        }
+    }static void dis(int puzzle[][]) {
+        for (int y = 0; y < 9; y++) {
+            System.out.println();
+            if (y == 3 || y == 6)
+                System.out.println("-----------------------------");
+            for (int x = 0; x < 9; x++) {
+                if (x == 3 || x == 6)
+                    System.out.print("|");
+                if (puzzle[y][x] == 0)
+                    System.out.print("   ");
+                else
+                    System.out.print(" " + puzzle[y][x] + " ");
+            }
+        }
+    }
+}
